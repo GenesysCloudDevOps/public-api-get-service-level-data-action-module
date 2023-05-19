@@ -1,0 +1,81 @@
+{
+  "name": "Get Service Level",
+  "integrationType": "purecloud-data-actions",
+  "actionType": "custom",
+  "config": {
+    "request": {
+      "requestUrlTemplate": "/api/v2/analytics/conversations/aggregates/query",
+      "requestType": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "requestTemplate": "{\"groupBy\":[\"queueId\"], \"interval\":\"${input.interval}\", \"filter\": {\"type\":\"and\",\"predicates\": [{\"dimension\": \"queueId\",\"value\": \"${input.queueId}\"}, {\"dimension\": \"mediaType\",\"value\": \"${input.mediaType}\"}]}, \"metrics\": [\"oServiceLevel\"]}"
+    },
+    "response": {
+      "translationMap": {
+        "stats": "$.results[0].data[0].metrics[0].stats"
+      },
+      "translationMapDefaults": {
+        "stats": "{}"
+      },
+      "successTemplate": "${stats}"
+    }
+  },
+  "contract": {
+    "input": {
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "Get Service Level",
+        "description": "Service level for a specific queue.",
+        "type": "object",
+        "required": ["interval", "queueId", "mediaType"],
+        "properties": {
+          "interval": {
+            "description": "Interval",
+            "type": "string"
+          },
+          "queueId": {
+            "description": "The queue ID.",
+            "type": "string"
+          },
+          "mediaType": {
+            "description": "Valid values: callback, chat, cobrowse, email, message, screenshare, voice",
+            "type": "string",
+            "enum": [
+              "callback",
+              "chat",
+              "cobrowse",
+              "email",
+              "message",
+              "screenshare",
+              "voice"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "output": {
+      "successSchema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {
+          "numerator": {
+            "type": "number"
+          },
+          "ratio": {
+            "type": "number"
+          },
+          "target": {
+            "type": "number"
+          },
+          "denominator": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "secure": false
+}
